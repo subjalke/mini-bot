@@ -1,0 +1,23 @@
+# mini-bot/scripts/run_ollama.ps1
+# 用法：powershell -ExecutionPolicy Bypass -File scripts/run_ollama.ps1
+
+# 配置
+$OllamaExe = "ollama.exe"   # Ollama主程序路径（如已加入PATH可直接用名字）
+$ModelName = "deepseek-r1:8b"  # 你要加载的模型名
+$Port = 11434
+
+# 检查 Ollama 服务是否已在运行
+$service = Get-Process | Where-Object { $_.ProcessName -like "ollama*" }
+if ($service) {
+    Write-Host "Ollama 服务已在运行。"
+} else {
+    Write-Host "正在启动 Ollama 服务..."
+    Start-Process -NoNewWindow -FilePath $OllamaExe -ArgumentList "serve" 
+    Start-Sleep -Seconds 3
+}
+
+# 拉取模型（如果未下载）
+Write-Host "确保模型 [$ModelName] 已下载..."
+& $OllamaExe pull $ModelName
+
+Write-Host "Ollama 服务和模型准备就绪。"

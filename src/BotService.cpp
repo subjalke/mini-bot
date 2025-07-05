@@ -1,5 +1,6 @@
 #include "BotService.hpp"
 #include <iostream>
+#include <nlohmann/json.hpp>
 
 BotService::BotService(
     const ChatSession& session,
@@ -32,8 +33,9 @@ std::string BotService::processUserMessage(const std::string& userInput){
                 
                 for (const auto& toolCall : json["tool_calls"]) {
                     std::string toolName = toolCall["name"].get<std::string>();
-                    std::string arguments = toolCall["arguments"].get<std::string>();
-                    
+                    nlohmann::json arguments =
+                        nlohmann::json::parse(toolCall["arguments"].get<std::string>());
+
                     // 查找并执行工具
                     auto* toolInfo = toolRegistry.getToolInfo(toolName);
                     if (toolInfo) {

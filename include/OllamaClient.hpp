@@ -1,8 +1,9 @@
 #pragma once  // 放在最顶
 
-#include<string>
-#include<vector>
-#include<nlohmann/json.hpp>
+#include <string>
+#include <vector>
+#include <functional>
+#include <nlohmann/json.hpp>
 /*
 OllamaClient 类封装了通过HTTP接口与本地 Ollama 模型服务交互的细节，
 利用库 cpr 发送请求并处理响应。
@@ -14,6 +15,7 @@ class OllamaClient{
         OllamaClient(const std::string& baseUrl, const std::string& modelName);
         //设置模型服务URL和模型名称。
         void sendChatRequest(const std::vector<nlohmann::json>& messages, const std::vector<nlohmann::json>& tools, std::function<bool(const nlohmann::json&)> onChunk);
+        nlohmann::json sendChatRequestOnce(const std::vector<nlohmann::json>& messages, const std::vector<nlohmann::json>& tools);
         /*
         发送聊天请求并流式处理响应。
         参数说明：

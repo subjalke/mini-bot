@@ -80,3 +80,41 @@ std::string BotService::processUserMessage(const std::string& userInput){
     
     return accumulatedResponse;
 }
+
+std::string BotService::processUserMessageSync(const std::string& userInput){
+    session.addUserMessage(userInput);
+    auto messages = session.getMessagesJson();
+    auto tools = toolRegistry.getToolDefinitionsJson();
+
+    std::string accumulatedResponse;
+
+    while (true) {
+        nlohmann::json resp = client.sendChatRequestOnce(messages, tools);
+
+        if (resp.contains("tool_calls")) {
+            for (const auto& call : resp["tool_calls"]) {
+                std::string toolName = call["name"].get<std::string>();
+                nlohmann::json args = nlohmann::json::parse(call["arguments"].get<std::string>());
+                auto* info = toolRegistry.getToolInfo(toolName);
+                if (info) {
+                    std::string result = info->handler(args);
+                    session.addToolResultMessage(toolName, result);
+                }
+            }
+            messages = session.getMessagesJson();
+            continue;
+        }
+
+        if (resp.contains("message") && resp["message"].contains("content")) {
+            accumulatedResponse = resp["message"]["content"].get<std::string>();
+        }
+
+        break;
+    }
+
+    if (!accumulatedResponse.empty()) {
+        session.addAssistantMessage(accumulatedResponse);
+    }
+
+    return accumulatedResponse;
+}

@@ -18,6 +18,7 @@ class BotService {
                     );
                     //构造时注入已有的会话管理、模型客户端和工具库，并注册所有工具。
         std::string processUserMessage(const std::string& userInput);
+        std::string processUserMessageSync(const std::string& userInput);
         //处理一次用户输入，并返回最终的模型回答。
         /*
         实现流程：

@@ -1,4 +1,4 @@
-﻿#include "ToolRegistry.hpp"
+#include "ToolRegistry.hpp"
 
 void ToolRegistry::registerTool(
     const std::string& name, 

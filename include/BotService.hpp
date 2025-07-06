@@ -1,4 +1,4 @@
-﻿#pragma once  // 放在最顶
+#pragma once  // 放在最顶
 
 #include "ChatSession.hpp"
 #include "OllamaClient.hpp"

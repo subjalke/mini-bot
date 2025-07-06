@@ -40,6 +40,10 @@ void OllamaClient::sendChatRequest(
     auto writeCallback = [&](const std::string_view& data,
                              intptr_t /*userdata*/) -> bool {
         buffer.append(data);
+        size_t pos_crlf = 0;
+        while ((pos_crlf = buffer.find("\r\n", pos_crlf)) != std::string::npos) {
+            buffer.replace(pos_crlf, 2, "\n");
+        }
         size_t pos;
         while ((pos = buffer.find("\n\n")) != std::string::npos) {
             std::string event = buffer.substr(0, pos);

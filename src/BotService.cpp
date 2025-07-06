@@ -13,9 +13,14 @@ BotService::BotService(
 }
 
 std::string BotService::processUserMessage(const std::string& userInput){
+    std::cout << "开始处理用户消息: " << userInput << std::endl;
+    
     session.addUserMessage(userInput);
     auto messages = session.getMessagesJson();
     auto tools = toolRegistry.getToolDefinitionsJson(); 
+    
+    std::cout << "会话消息数量: " << messages.size() << std::endl;
+    std::cout << "可用工具数量: " << tools.size() << std::endl;
     
     std::string accumulatedResponse;
     bool hasToolCalls = false;
@@ -25,7 +30,11 @@ std::string BotService::processUserMessage(const std::string& userInput){
         hasToolCalls = false;
         accumulatedResponse.clear();
         
+        std::cout << "开始调用 Ollama API..." << std::endl;
+        
         client.sendChatRequest(messages, tools, [this, &accumulatedResponse, &hasToolCalls](const nlohmann::json& json) -> bool {
+            std::cout << "收到API响应，检查内容..." << std::endl;
+            
             // 检查是否有工具调用
             if (json.contains("tool_calls")) {
                 hasToolCalls = true;
@@ -58,11 +67,15 @@ std::string BotService::processUserMessage(const std::string& userInput){
             
             // 检查是否完成
             if (json.contains("done") && json["done"].get<bool>()) {
+                std::cout << "模型响应完成" << std::endl;
                 return true; // 正常结束流
             }
             
             return true; // 继续读取
         });
+        
+        std::cout << "API调用完成，hasToolCalls: " << (hasToolCalls ? "true" : "false") << std::endl;
+        std::cout << "累积响应长度: " << accumulatedResponse.length() << std::endl;
         
         // 如果没有工具调用，跳出循环
         if (!hasToolCalls) {
@@ -76,6 +89,9 @@ std::string BotService::processUserMessage(const std::string& userInput){
     // 将最终的助手回复添加到会话历史
     if (!accumulatedResponse.empty()) {
         session.addAssistantMessage(accumulatedResponse);
+        std::cout << "已将助手回复添加到会话历史" << std::endl;
+    } else {
+        std::cout << "警告：没有收到任何响应内容" << std::endl;
     }
     
     return accumulatedResponse;

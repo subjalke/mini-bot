@@ -23,7 +23,6 @@ set(SOURCES
 add_executable(mini-bot ${SOURCES})
 target_include_directories(mini-bot PRIVATE include)
 
-
 set(cpr_DIR "C:/code2/mini-bot/vcpkg/installed/x64-windows/share/cpr")
 find_package(cpr CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)

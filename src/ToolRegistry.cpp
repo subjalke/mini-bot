@@ -1,33 +1,51 @@
 #include "ToolRegistry.hpp"
+#include "tools/Calculator.hpp"
+#include "tools/Weather.hpp"
+#include <iostream>
 
-void ToolRegistry::registerTool(
-    const std::string& name, 
-    const std::string& description, 
-    const nlohmann::json& paramSchema, 
-    std::function<std::string(const nlohmann::json&)> handler
-    ){
-    this->tools[name] = {name, description, paramSchema, handler};
+ToolRegistry::ToolRegistry() {
+    // 注册计算器工具
+    registerTool("calculator", 
+        [](const nlohmann::json& args) {
+            std::string expression = args["expression"];
+            return Calculator::calculate(expression);
+        },
+        Calculator::getToolDefinition()
+    );
+    
+    // 注册天气工具
+    registerTool("get_weather",
+        [](const nlohmann::json& args) {
+            std::string city = args["city"];
+            return Weather::getWeather(city);
+        },
+        Weather::getToolDefinition()
+    );
 }
 
-ToolInfo* ToolRegistry::getToolInfo(const std::string& name) {
+void ToolRegistry::registerTool(const std::string& name, ToolFunction func, const nlohmann::json& definition) {
+    tools[name] = func;
+    definitions[name] = definition;
+}
+
+std::string ToolRegistry::executeTool(const std::string& name, const nlohmann::json& args) {
     auto it = tools.find(name);
-    if (it != tools.end()) {
-        return &(it->second);
+    if (it == tools.end()) {
+        return "错误：工具 '" + name + "' 未找到";
     }
-    return nullptr;
+    
+    try {
+        return it->second(args);
+    } catch (const std::exception& e) {
+        return "工具执行错误：" + std::string(e.what());
+    }
 }
 
-std::vector<nlohmann::json> ToolRegistry::getToolDefinitionsJson() const {
-    std::vector<nlohmann::json> defs;
-    for (const auto& kv : tools) {
-        const ToolInfo& info = kv.second;
-        nlohmann::json def = {
-            {"name", info.name},
-            {"description", info.description},
-            {"parameters", info.paramSchema}
-        };
-        defs.push_back(def);
+std::vector<nlohmann::json> ToolRegistry::getToolDefinitions() const {
+    std::vector<nlohmann::json> result;
+    for (const auto& pair : definitions) {
+        result.push_back(pair.second);
     }
-    return defs;
+    return result;
 }
 

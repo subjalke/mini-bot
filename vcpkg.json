@@ -1,0 +1,27 @@
+{
+  "name": "mini-bot",
+  "version": "1.0.0",
+  "description": "A simple chat bot based on Ollama",
+  "homepage": "https://github.com/your-username/mini-bot",
+  "dependencies": [
+    {
+      "name": "cpr",
+      "version>=": "1.10.0"
+    },
+    {
+      "name": "nlohmann-json",
+      "version>=": "3.11.0"
+    }
+  ],
+  "builtin-baseline": "2024-05-23",
+  "overrides": [
+    {
+      "name": "cpr",
+      "version": "1.12.0"
+    },
+    {
+      "name": "nlohmann-json", 
+      "version": "3.12.0"
+    }
+  ]
+} 

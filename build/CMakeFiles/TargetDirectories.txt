@@ -1,0 +1,3 @@
+C:/code2/mini-bot/build/CMakeFiles/mini-bot.dir
+C:/code2/mini-bot/build/CMakeFiles/ALL_BUILD.dir
+C:/code2/mini-bot/build/CMakeFiles/ZERO_CHECK.dir

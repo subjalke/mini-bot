@@ -1,0 +1,18 @@
+# Mini-Bot 项目依赖
+
+# 系统要求
+# - C++17 兼容的编译器
+# - CMake 3.21+
+# - Ollama (https://ollama.ai/)
+
+# vcpkg 依赖包
+cpr>=1.10.0
+nlohmann-json>=3.11.0
+
+# 可选依赖（用于开发）
+# - Visual Studio 2019+ (Windows)
+# - GCC 7+ (Linux)
+# - Clang 10+ (macOS)
+
+# 模型要求
+# - deepseek-r1:8b (通过 ollama pull deepseek-r1:8b 下载) 

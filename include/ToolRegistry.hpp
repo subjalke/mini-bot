@@ -1,25 +1,20 @@
 #pragma once
-#include <nlohmann/json.hpp>
-#include <functional>
 #include <string>
-#include <unordered_map>
+#include <functional>
+#include <map>
+#include <nlohmann/json.hpp>
 #include <vector>
 
-struct ToolInfo {
-    std::string name;
-    std::string description;
-    nlohmann::json paramSchema;
-    std::function<std::string(const nlohmann::json&)> handler;
-};
-
 class ToolRegistry {
-private:
-    std::unordered_map<std::string, ToolInfo> tools;
 public:
-    void registerTool(const std::string& name,
-                      const std::string& description,
-                      const nlohmann::json& paramSchema,
-                      std::function<std::string(const nlohmann::json&)> handler);
-    ToolInfo* getToolInfo(const std::string& name);
-    std::vector<nlohmann::json> getToolDefinitionsJson() const;
+    using ToolFunction = std::function<std::string(const nlohmann::json&)>;
+    
+    ToolRegistry();
+    void registerTool(const std::string& name, ToolFunction func, const nlohmann::json& definition);
+    std::string executeTool(const std::string& name, const nlohmann::json& args);
+    std::vector<nlohmann::json> getToolDefinitions() const;
+    
+private:
+    std::map<std::string, ToolFunction> tools;
+    std::map<std::string, nlohmann::json> definitions;
 };

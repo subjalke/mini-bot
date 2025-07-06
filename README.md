@@ -1,50 +1,98 @@
-# mini-bot 项目说明
+# Mini-Bot
+
+一个基于 Ollama 的简单聊天机器人。
+
+## 功能特性
+
+- 🤖 基于 Ollama 的聊天对话
+- 💬 会话历史管理
+- 🔄 流式响应显示
+- 🚀 简洁的命令行界面
 
 ## 项目结构
 
+```
 mini-bot/
-├─ CMakeLists.txt          # 根 CMake，统一编译规则
-├─ vcpkg.json              # vcpkg manifest：声明依赖（cpr / nlohmann-json / qtbase …）
-├─ README.md               # 项目说明 & 运行指南
-│
-├─ config/                 # 可运行时热改的配置
-│  └─ settings.json        # 端口、模型名、裁剪阈值、UI 主题等
-│
-├─ include/                # 头文件，对外接口
-│  ├─ ChatSession.hpp      # 保存 / 裁剪 messages，统计 token
-│  ├─ OllamaClient.hpp     # 封装 cpr 调用，支持流式回调
-│  ├─ BotService.hpp       # 整合 ChatSession + OllamaClient + Tool 调度
-│  ├─ ToolRegistry.hpp     # 注册本地工具（函数调用）
-│  └─ util.hpp             # 通用助手：token 估算、字符串工具等
-│
-├─ src/                    # 对应实现文件
-│  ├─ main_cli.cpp         # 命令行入口（最小 Demo 就靠它）
-│  ├─ ChatSession.cpp
-│  ├─ OllamaClient.cpp
-│  ├─ BotService.cpp
-│  ├─ ToolRegistry.cpp
-│  └─ tools/               # 每个 tool 一个 cpp，易于增删
-│     ├─ tool_weather.cpp
-│     └─ tool_calc.cpp
-│
-├─ ui/                     # 可视化层（可以二选一，也可都保留）
-│  ├─ qt/                  # 纯本地桌面
-│  │  ├─ CMakeLists.txt    # 添加 QtQuick、QtWebSockets
-│  │  ├─ main_qt.cpp       # QApplication + QQmlApplicationEngine
-│  │  ├─ qml/              # QML 资源
-│  │  │  ├─ ChatWindow.qml
-│  │  │  └─ components/
-│  │  │     ├─ Bubble.qml
-│  │  │     └─ TokenMeter.qml
-│  │  └─ res/              # 图标、字体
-│  │
-│  
-│
-├─ tests/                  # 单元测试（Catch2 / GoogleTest）
-│  ├─ test_session.cpp
-│  └─ test_ollama_mock.cpp
-│
-└─ scripts/                # 辅助脚本
-   ├─ run_ollama.ps1       # 一键启动 serve + pull 模型（Windows）
-   ├─ run_ollama.sh        # Linux/macOS 同等脚本
-   └─ format_all.sh        # clang-format 自动排版
+├── src/
+│   ├── main.cpp              # 主程序入口
+│   ├── OllamaClient.cpp      # Ollama API 客户端
+│   ├── ChatSession.cpp       # 会话管理
+│   └── BotService.cpp        # 机器人服务
+├── include/
+│   ├── OllamaClient.hpp
+│   ├── ChatSession.hpp
+│   └── BotService.hpp
+├── CMakeLists.txt           # CMake 配置
+└── README.md
+```
+
+## 前置要求
+
+1. **Ollama** - 本地大语言模型服务
+   - 下载地址：https://ollama.ai/
+   - 安装后需要下载模型：`ollama pull deepseek-r1:8b`
+
+2. **C++ 编译器**
+   - Windows: Visual Studio 2019+ 或 MinGW
+   - Linux: GCC 7+
+   - macOS: Clang 10+
+
+3. **CMake** 3.21+
+
+4. **vcpkg** - C++ 包管理器
+   - 安装依赖：`vcpkg install cpr nlohmann-json`
+
+## 构建步骤
+
+1. **克隆项目**
+   ```bash
+   git clone <repository-url>
+   cd mini-bot
+   ```
+
+2. **配置项目**
+   ```bash
+   cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=C:/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
+   ```
+
+3. **构建项目**
+   ```bash
+   cmake --build build
+   ```
+
+4. **运行程序**
+   ```bash
+   ./build/Debug/mini-bot.exe  # Windows
+   ./build/mini-bot            # Linux/macOS
+   ```
+
+## 使用方法
+
+1. 启动程序后，会自动启动 Ollama 服务
+2. 输入消息开始对话
+3. 输入 `exit` 退出程序
+
+## 示例对话
+
+```
+用户: 你好
+助手: 你好！我是 Mini-Bot，很高兴为您服务。有什么我可以帮助您的吗？
+
+用户: 请介绍一下你自己
+助手: 我是一个基于 Ollama 的聊天机器人，使用 deepseek-r1:8b 模型。我可以进行自然语言对话，帮助您解答问题、进行交流等。有什么具体的问题或话题想和我讨论吗？
+
+用户: exit
+再见！
+```
+
+## 技术栈
+
+- **C++17** - 核心语言
+- **Ollama** - 本地大语言模型服务
+- **cpr** - HTTP 客户端库
+- **nlohmann/json** - JSON 处理库
+- **CMake** - 构建系统
+
+## 许可证
+
+MIT License

@@ -67,3 +67,26 @@ void OllamaClient::sendChatRequest(
         cpr::Timeout{0}
     );
 }
+
+nlohmann::json OllamaClient::sendChatRequestOnce(
+    const std::vector<nlohmann::json>& messages,
+    const std::vector<nlohmann::json>& tools) {
+    nlohmann::json request{
+        {"model",    modelName},
+        {"messages", messages},
+        {"tools",    tools},
+        {"stream",   false}
+    };
+
+    cpr::Response resp = cpr::Post(
+        cpr::Url{baseUrl + "/api/chat"},
+        cpr::Body{request.dump()},
+        cpr::Header{{"Content-Type", "application/json"}}
+    );
+
+    if (resp.status_code != 200) {
+        throw std::runtime_error("Request failed: " + resp.text);
+    }
+
+    return nlohmann::json::parse(resp.text);
+}

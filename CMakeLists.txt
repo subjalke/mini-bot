@@ -10,8 +10,7 @@ else()
     add_compile_options(-finput-charset=UTF-8)
 endif()
 
-set(SOURCES
-    src/main_cli.cpp
+set(SHARED_SOURCES
     src/BotService.cpp
     src/ChatSession.cpp
     src/OllamaClient.cpp
@@ -20,11 +19,16 @@ set(SOURCES
     src/tool/tool_calc.cpp
     src/tool/tool_wearther.cpp
 )
-add_executable(mini-bot ${SOURCES})
+
+add_executable(mini-bot src/main_cli.cpp ${SHARED_SOURCES})
+add_executable(mini-bot-sync src/main_cli_sync.cpp ${SHARED_SOURCES})
+
 target_include_directories(mini-bot PRIVATE include)
+target_include_directories(mini-bot-sync PRIVATE include)
 
 
 set(cpr_DIR "C:/code2/mini-bot/vcpkg/installed/x64-windows/share/cpr")
 find_package(cpr CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 target_link_libraries(mini-bot PRIVATE cpr::cpr nlohmann_json::nlohmann_json)
+target_link_libraries(mini-bot-sync PRIVATE cpr::cpr nlohmann_json::nlohmann_json)

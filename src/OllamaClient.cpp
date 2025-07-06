@@ -66,8 +66,4 @@ void OllamaClient::sendChatRequest(
         cpr::WriteCallback{writeCallback},
         cpr::Timeout{0}
     );
-
-    if (!stop && resp.status_code != 200) {
-        throw std::runtime_error("Chat request failed: " + resp.text);
-    }
 }

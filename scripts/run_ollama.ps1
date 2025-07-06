@@ -1,4 +1,4 @@
-﻿$OllamaExe = "ollama.exe"   # Ollama主程序路径（如已加入PATH可直接用名字）
+﻿$OllamaExe = "C:\Users\天选\AppData\Local\Programs\Ollama\ollama.exe"  # Ollama主程序路径（如已加入PATH可直接用名字）
 $ModelName = "deepseek-r1:8b"  # 你要加载的模型名
 
 # 检查 Ollama 服务是否已在运行

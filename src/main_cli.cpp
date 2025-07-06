@@ -8,9 +8,17 @@
 #include <cstdlib>
 #include <chrono>
 #include <thread>
-
+#include <locale>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 int main() {
     try {
+#ifdef _WIN32
+        SetConsoleOutputCP(CP_UTF8);
+        SetConsoleCP(CP_UTF8);
+#endif
+        std::setlocale(LC_ALL, ".UTF-8");
         // 启动 Ollama 服务
         std::cout << "正在启动 Ollama 服务..." << std::endl;
         int result = std::system("powershell -ExecutionPolicy Bypass -File C:\\code2\\mini-bot\\scripts\\run_ollama.ps1");

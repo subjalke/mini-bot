@@ -1,10 +1,5 @@
-// 聊天机器人服务核心
-/*
-BotService 类将聊天会话、模型客户端和工具调用整合起来，充当应用主控制器。
-它负责处理用户输入，调用模型获取回复，并处理可能的工具调用。
-对于CLI版本，BotService直接与控制台交互（读取用户输入、打印输出）；
-对于UI版本，BotService还会通过WebSocket与前端通信
-*/
+﻿#pragma once  // 放在最顶
+
 #include "ChatSession.hpp"
 #include "OllamaClient.hpp"
 #include "ToolRegistry.hpp"

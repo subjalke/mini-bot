@@ -1,3 +1,5 @@
+﻿#pragma once  // 放在最顶
+
 #include<string>
 #include<vector>
 #include<nlohmann/json.hpp>

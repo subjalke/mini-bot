@@ -1,16 +1,25 @@
-#include<nlohmann/json.hpp>
+﻿#include<nlohmann/json.hpp>
 #include "BotService.hpp"
 #include "ChatSession.hpp"
 #include "OllamaClient.hpp"
 #include "ToolRegistry.hpp"
 #include <iostream>
 #include <string>
-
-
+#include <cstdlib>
+#include <chrono>
+#include <thread>
 
 int main() {
     try {
-        std::system("powershell -ExecutionPolicy Bypass -File scripts/run_ollama.ps1");
+        // 启动 Ollama 服务
+        std::cout << "正在启动 Ollama 服务..." << std::endl;
+        int result = std::system("powershell -ExecutionPolicy Bypass -File C:\\code2\\mini-bot\\scripts\\run_ollama.ps1");
+        if (result != 0) {
+            std::cerr << "警告：Ollama 服务启动可能失败，但程序将继续运行..." << std::endl;
+        }
+
+        // 等待一下让服务完全启动
+        std::this_thread::sleep_for(std::chrono::seconds(2));
 
         // 初始化核心对象
         ChatSession session(1000); // 最大1000个token
@@ -27,7 +36,7 @@ int main() {
             std::cout << "\n用户: ";
             std::getline(std::cin, userInput);
             
-            if (userInput == "exit" || userInput == "quit") {
+            if (userInput == "exit") {
                 break;
             }
             

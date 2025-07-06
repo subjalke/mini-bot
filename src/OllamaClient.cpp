@@ -1,10 +1,11 @@
-// Ollama监听http://localhost:11434/api/chat
+﻿// Ollama监听http://localhost:11434/api/chat
 
 #include<cpr/cpr.h>
-#include "include/OllamaClient.hpp"
+#include "OllamaClient.hpp"
 #include<nlohmann/json.hpp>
 #include<string>
 #include<vector>
+#include <functional>
 
 OllamaClient::OllamaClient(const std::string& baseUrl, const std::string& modelName){
     this->baseUrl = baseUrl;
@@ -22,49 +23,51 @@ OllamaClient::OllamaClient(const std::string& baseUrl, const std::string& modelN
 }
 
 void OllamaClient::sendChatRequest(
-    const std::vector<nlohmann::json>& messages, // 处理好的信息列表
-    const std::vector<nlohmann::json>& tools, 
-    std::function<bool(const nlohmann::json&)> onChunk
-    ){
-    // 创建请求
-    nlohmann::json request = {
-        {"model", modelName},
+    const std::vector<nlohmann::json>& messages,
+    const std::vector<nlohmann::json>& tools,
+    std::function<bool(const nlohmann::json&)> onChunk) {
+
+    nlohmann::json request{
+        {"model",    modelName},
         {"messages", messages},
-        {"tools", tools},
-        {"stream", true}
+        {"tools",    tools},
+        {"stream",   true}
     };
-    
+
     std::string buffer;
-    auto writeCallback = [&](std::string data) -> bool {
-        buffer += data;
-        // 假设每个 JSON 块以换行符分隔
+    bool stop = false;
+
+    auto writeCallback = [&](const std::string_view& data,
+                             intptr_t /*userdata*/) -> bool {
+        buffer.append(data);
         size_t pos;
-        while ((pos = buffer.find('\n')) != std::string::npos) {
-            std::string jsonStr = buffer.substr(0, pos);
-            buffer.erase(0, pos + 1);
-            
-            if (!jsonStr.empty()) {
+        while ((pos = buffer.find("\n\n")) != std::string::npos) {
+            std::string event = buffer.substr(0, pos);
+            buffer.erase(0, pos + 2);
+
+            if (event.rfind("data: ", 0) == 0) {
+                std::string payload = event.substr(6);
+                if (payload == "[DONE]") { stop = true; break; }
+
                 try {
-                    nlohmann::json responseJson = nlohmann::json::parse(jsonStr);
-                    if (!onChunk(responseJson)) {
-                        return false; // 中断流式读取
-                    }
-                } catch (const std::exception& e) {
-                    // 忽略解析错误，继续处理
-                }
+                    nlohmann::json j = nlohmann::json::parse(payload);
+                    if (!onChunk(j)) { stop = true; break; }
+                } catch (...) { /* ignore parse errors */ }
             }
         }
-        return true; // 继续读取
+        return !stop;           // true=继续; false=让 libcurl 中断
     };
-    
-    cpr::Response response = cpr::Post(
-        cpr::Url{baseUrl + "/api/chat"}, 
-        cpr::Body{request.dump()}, 
-        cpr::Header{{"Content-Type", "application/json"}},
-        cpr::WriteCallback{writeCallback}  
+
+    cpr::Response resp = cpr::Post(
+        cpr::Url{baseUrl + "/api/chat"},
+        cpr::Body{request.dump()},
+        cpr::Header{{"Content-Type","application/json"},
+                    {"Accept","text/event-stream"}},
+        cpr::WriteCallback{writeCallback},
+        cpr::Timeout{0}
     );
-    
-    if (response.status_code != 200) {
-        throw std::runtime_error("Chat request failed: " + response.text);
+
+    if (!stop && resp.status_code != 200) {
+        throw std::runtime_error("Chat request failed: " + resp.text);
     }
 }
